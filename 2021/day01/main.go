@@ -17,8 +17,8 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println("Increasing pairs count: ", getIncreaseCountPairs(depths))
-	fmt.Println("Increasing trios count", getIncreaseCountTrios(depths))
+	fmt.Println("Increasing pairs count:", getIncreaseCountPairs(depths))
+	fmt.Println("Increasing trios count:", getIncreaseCountTrios(depths))
 }
 
 // getIncreaseCountPairs returns the count of how many times two adjacent numbers
@@ -34,10 +34,13 @@ func getIncreaseCountPairs(measurements []int) int {
 	return increaseCount
 }
 
+// getIncreaseCountTrios returns the count of how many times three adjacent numbers
+// in the given slice are an "increasing trio" (meaning the sum of the values in the
+// second trio are greater than the sum of the values in the trio immediately
+// preceding it)
 func getIncreaseCountTrios(measurements []int) int {
 	increaseCount := 0
 	trio1 := measurements[0] + measurements[1] + measurements[2]
-
 	for i := 3; i < len(measurements); i++ {
 		trio2 := measurements[i] + measurements[i-1] + measurements[i-2]
 		if trio2 > trio1 {
