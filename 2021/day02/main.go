@@ -7,15 +7,15 @@ import (
 )
 
 func main() {
-	commands, err := getPositionChanges("2021/day02/input.txt")
+	commands, err := processPositionChanges("2021/day02/input.txt")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Printf("%+v\n", *commands)
-	fmt.Println(commands.getMultipliedPosition())
+	fmt.Printf("Aggregated commands: %+v\n", *commands)
+	fmt.Println("Multipled position:", commands.getMultipliedPosition())
 }
 
-func getPositionChanges(filename string) (*commands, error) {
+func processPositionChanges(filename string) (*commands, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -34,10 +34,11 @@ func getPositionChanges(filename string) (*commands, error) {
 		switch direction {
 		case "forward":
 			commands.forward += position
+			commands.depth += commands.aim * position
 		case "up":
-			commands.up += position
+			commands.aim -= position
 		case "down":
-			commands.down += position
+			commands.aim += position
 		default:
 			return nil, fmt.Errorf("error: unknown direction %v\n", direction)
 		}
@@ -47,18 +48,10 @@ func getPositionChanges(filename string) (*commands, error) {
 
 type commands struct {
 	forward int
-	up int
-	down int
-}
-
-func (c *commands) getDepth() int {
-	return c.down - c.up
-}
-
-func (c *commands) getForwardPosition() int {
-	return c.forward
+	aim int
+	depth int
 }
 
 func (c *commands) getMultipliedPosition() int {
-	return c.getDepth() * c.getForwardPosition()
+	return c.depth * c.forward
 }
