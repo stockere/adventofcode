@@ -13,7 +13,7 @@ func main() {
 	// depths := []int{199, 200, 208, 210, 200, 207, 240, 269, 260, 263}
 	// Part 2 small input (expect function to return 5)
 	// depths := []int{607,618,618,617,647,716,769,792}
-	depths, err := csvToSlice("day01/input.csv")
+	depths, err := csvToSlice("2021/day01/input.csv")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
