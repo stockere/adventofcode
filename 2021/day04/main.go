@@ -13,12 +13,15 @@ type Game struct {
 	numbers 	[]int
 	boards 		[]*Board
 	gameWon 	bool
+	firstWinner *Board
+	lastWinner 	*Board
 }
 
 type Board struct {
 	rows    []map[int]int
 	columns []map[int]int
 	winner  bool
+	score   int
 }
 
 func main() {
@@ -26,17 +29,19 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	for _, num := range game.numbers {
+		fmt.Println("Marking number", num)
 		err := game.markNumber(num)
 		if err != nil {
 			panic(err)
 		}
-		if game.gameWon {
-			fmt.Println("Game won for number:", num)
-			fmt.Println("Winning score:", game.score(num))
+		if game.lastWinner != nil {
 			break
 		}
 	}
+	fmt.Println("Winning score:", game.firstWinner.score)
+	fmt.Println("Losing score:", game.lastWinner.score)
 }
 
 func loadGame(filename string) (*Game, error) {
@@ -126,13 +131,15 @@ func (g *Game) markNumber(number int) error {
 		return fmt.Errorf("nil boards")
 	}
 	for _, board := range g.boards {
+		if board.winner {
+			continue
+		}
 		// mark the rows
 		for _, row := range board.rows {
 			if _, ok := row[number]; ok {
 				delete(row, number)
 				if len(row) == 0 {
-					board.winner = true
-					g.gameWon = true
+					g.recordWinner(board, number)
 				}
 			}
 		}
@@ -140,9 +147,8 @@ func (g *Game) markNumber(number int) error {
 		for _, column := range board.columns {
 			if _, ok := column[number]; ok {
 				delete(column, number)
-				if len(column) == 0 {
-					board.winner = true
-					g.gameWon = true
+				if len(column) == 0 && !board.winner {
+					g.recordWinner(board, number)
 				}
 			}
 		}
@@ -150,17 +156,30 @@ func (g *Game) markNumber(number int) error {
 	return nil
 }
 
-func (g *Game) score(num int) int {
+func (g *Game) recordWinner(board *Board, number int) {
+	winnerCount := 0
 	for _, board := range g.boards {
 		if board.winner {
-			sum := 0
-			for _, row := range board.rows {
-				for key := range row {
-					sum += key
-				}
-			}
-			return num * sum
+			winnerCount++
 		}
 	}
-	return 0
+	if winnerCount == len(g.boards) - 1 {
+		g.lastWinner = board
+	}
+	board.winner = true
+	board.scoreBoard(number)
+	if !g.gameWon {
+		g.firstWinner = board
+		g.gameWon = true
+	}
+}
+
+func (b *Board) scoreBoard(number int) {
+	sum := 0
+	for _, row := range b.rows {
+		for key := range row {
+			sum += key
+		}
+	}
+	b.score = number * sum
 }
