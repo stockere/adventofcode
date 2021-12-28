@@ -15,14 +15,8 @@ func main() {
 		panic(err)
 	}
 
-	var straightLines []*Line
-	for _, line := range lines {
-		if line.isStraight() {
-			straightLines = append(straightLines, line)
-		}
-	}
 	pointCount := make(map[Point]int)
-	for _, line := range straightLines {
+	for _, line := range lines {
 		points, err := line.getLineCoordinates()
 		if err != nil {
 			panic(err)
@@ -102,10 +96,8 @@ type Point struct {
 	y int
 }
 
-// isStraight is true if the line is not diagonal
-// (yes diagonal lines are also straight, naming is hard)
-func (l *Line) isStraight() bool {
-	return l.isHorizontal() || l.isVertical()
+func (l *Line) isDiagonal() bool {
+	return !(l.isHorizontal() || l.isVertical())
 }
 
 func (l *Line) isHorizontal() bool {
@@ -117,24 +109,21 @@ func (l *Line) isVertical() bool {
 }
 
 func (l *Line) getLineCoordinates() ([]Point, error) {
-	if !l.isStraight() {
-		return nil, fmt.Errorf("can't return coordinates of diagonal line")
-	}
 	var points []Point
 	if l.isHorizontal() {
 		y := l.point1.y
-		var i int
-		var j int
+		var x int
+		var xmax int
 		if l.point1.x < l.point2.x {
-			i = l.point1.x
-			j = l.point2.x
+			x = l.point1.x
+			xmax = l.point2.x
 		} else {
-			i = l.point2.x
-			j = l.point1.x
+			x = l.point2.x
+			xmax = l.point1.x
 		}
-		for ; i <= j; i++ {
+		for ; x <= xmax; x++ {
 			point := Point{
-				x: i,
+				x: x,
 				y: y,
 			}
 			points = append(points, point)
@@ -142,21 +131,51 @@ func (l *Line) getLineCoordinates() ([]Point, error) {
 	}
 	if l.isVertical() {
 		x := l.point1.x
-		var i int
-		var j int
+		var y int
+		var ymax int
 		if l.point1.y < l.point2.y {
-			i = l.point1.y
-			j = l.point2.y
+			y = l.point1.y
+			ymax = l.point2.y
 		} else {
-			i = l.point2.y
-			j = l.point1.y
+			y = l.point2.y
+			ymax = l.point1.y
 		}
-		for ; i <= j; i++ {
+		for ; y <= ymax; y++ {
 			point := Point{
 				x: x,
-				y: i,
+				y: y,
 			}
 			points = append(points, point)
+		}
+	}
+	if l.isDiagonal() {
+		var x int
+		var xmax int
+		var y int
+		var increaseY bool
+		if l.point1.x < l.point2.x {
+			x = l.point1.x
+			xmax = l.point2.x
+			// y value needs to increase if point2.y is greater or decrease if it's smaller
+			y = l.point1.y
+			increaseY = l.point2.y > y
+		} else {
+			x = l.point2.x
+			y = l.point2.y
+			xmax = l.point1.x
+			increaseY = l.point1.y > y
+		}
+		for ; x <= xmax; x++ {
+			point := Point{
+				x: x,
+				y: y,
+			}
+			points = append(points, point)
+			if increaseY {
+				y++
+			} else {
+				y--
+			}
 		}
 	}
 	return points, nil
