@@ -24,6 +24,8 @@ func main() {
 				moveCost = 0
 			} else {
 				moveCost = int(math.Abs(float64(i - num)))
+				// summation (part 2)
+				moveCost = moveCost * (moveCost + 1) / 2
 			}
 			fuelCost += moveCost * freq
 		}
