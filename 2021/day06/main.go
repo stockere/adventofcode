@@ -45,20 +45,20 @@ type Lanternfish struct {
 // either produces another fish (resetting this fish's timer
 // and returning the new fish) or remaining days run out,
 // whichever is first
-func (l *Lanternfish) advanceTimer() *Lanternfish {
-	if l.daysLeft == 0 {
+func (f *Lanternfish) advanceTimer() *Lanternfish {
+	if f.daysLeft == 0 {
 		return nil
 	}
-	if l.age >= l.daysLeft{
-		l.age = l.age - l.daysLeft
-		l.daysLeft = 0
+	if f.age >= f.daysLeft{
+		f.age = f.age - f.daysLeft
+		f.daysLeft = 0
 		return nil
 	}
-	l.daysLeft = l.daysLeft - l.age - 1
-	l.age = 6
+	f.daysLeft = f.daysLeft - f.age - 1
+	f.age = 6
 	return &Lanternfish{
 		age:      8,
-		daysLeft: l.daysLeft,
+		daysLeft: f.daysLeft,
 	}
 }
 
@@ -66,21 +66,21 @@ func (l *Lanternfish) advanceTimer() *Lanternfish {
 // and returns the total number of fish that will exist when daysLeft == 0
 // each unique Lanternfish encountered by this algorithm will be added to the
 // lookup table fishRecord for efficiency
-func (l *Lanternfish) getProgenyCount(fishRecord map[Lanternfish]int) int {
-	if l.daysLeft == 0 {
+func (f *Lanternfish) getProgenyCount(fishRecord map[Lanternfish]int) int {
+	if f.daysLeft == 0 {
 		return 1
 	}
-	if progeny, ok := fishRecord[*l]; ok {
+	if progeny, ok := fishRecord[*f]; ok {
 		return progeny
 	}
-	// grab a copy because l.advanceTimer() mutates the fish before we store it
-	fishSnapshot := *l
-	if newFishy := l.advanceTimer(); newFishy == nil {
-		progeny := l.getProgenyCount(fishRecord)
+	// grab a copy because f.advanceTimer() mutates the fish before we store it
+	fishSnapshot := *f
+	if newFishy := f.advanceTimer(); newFishy == nil {
+		progeny := f.getProgenyCount(fishRecord)
 		fishRecord[fishSnapshot] = progeny
 		return progeny
 	} else {
-		progeny := l.getProgenyCount(fishRecord) + newFishy.getProgenyCount(fishRecord)
+		progeny := f.getProgenyCount(fishRecord) + newFishy.getProgenyCount(fishRecord)
 		fishRecord[fishSnapshot] = progeny
 		return progeny
 	}
